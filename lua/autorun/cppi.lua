@@ -24,8 +24,7 @@ end
 -- Get name of player from UID
 function CPPI:GetNameFromUID(uid)
   local ply = player.GetByUniqueID(uid)
-  if not ply then return end
-  return ply:Nick()
+  return ply and ply:Nick() or nil
 end
 
 -- Get friends from a player
@@ -37,76 +36,53 @@ end
 -- Get the owner of an entity
 function ENTITY:CPPIGetOwner()
   local ply = sh_PProtect.GetOwner(self)
-  if not ply or not ply:IsPlayer() then return nil, nil end
-  return ply, ply:UniqueID()
+  if IsValid(ply) and ply:IsPlayer() then
+    return ply, ply:UniqueID()
+  end
+  return nil, nil
 end
 
 if CLIENT then return end
 
 -- Set owner of an entity
 function ENTITY:CPPISetOwner(ply)
-  if not ply or not ply:IsPlayer() then return false end
-  return sv_PProtect.SetOwner(self, ply)
+  if IsValid(ply) and ply:IsPlayer() then
+    return sv_PProtect.SetOwner(self, ply)
+  end
+  return false
 end
 
 -- Set owner of an entity by UID
 function ENTITY:CPPISetOwnerUID(uid)
-  return self:CPPISetOwner(player.GetByUniqueID(uid) or nil)
+  local ply = player.GetByUniqueID(uid)
+  return ply and self:CPPISetOwner(ply) or false
 end
 
 -- Set entity to no world (true) or not even world (false)
 function ENTITY:CPPISetOwnerless(bool)
   if not IsValid(self) then return false end
 
-  if bool then
-    self:SetNWEntity('pprotect_owner', nil)
-    self:SetNWBool('pprotect_world', true)
-  else
-    self:SetNWEntity('pprotect_owner', nil)
-  end
+  self:SetNWEntity('pprotect_owner', nil)
+  self:SetNWBool('pprotect_world', bool)
 
   return true
 end
 
--- Can tool
-function ENTITY:CPPICanTool(ply, tool)
-  return sv_PProtect.CanTool(ply, self, tool)
+-- Define entity permission check functions
+local function definePermissionCheck(name, func)
+  ENTITY[name] = function(self, ply, ...)
+    return func(ply, self, ...)
+  end
 end
 
--- Can physgun
-function ENTITY:CPPICanPhysgun(ply)
-  return sv_PProtect.CanPhysgun(ply, self)
-end
-
--- Can pickup
-function ENTITY:CPPICanPickup(ply)
-  return sv_PProtect.CanPickup(ply, self)
-end
-
--- Can punt
-function ENTITY:CPPICanPunt(ply)
-  return sv_PProtect.CanGravPunt(ply, self)
-end
-
--- Can use
-function ENTITY:CPPICanUse(ply)
-  return sv_PProtect.CanUse(ply, self)
-end
-
--- Can damage
-function ENTITY:CPPICanDamage(ply)
-  return sv_PProtect.CanDamage(ply, self)
-end
-
--- Can drive
-function ENTITY:CPPICanDrive(ply)
-  return sv_PProtect.CanDrive(ply, self)
-end
-
--- Can property
-function ENTITY:CPPICanProperty(ply, property)
-  return sv_PProtect.CanProperty(ply, property, self)
-end
+definePermissionCheck('CPPICanTool', sv_PProtect.CanTool)
+definePermissionCheck('CPPICanPhysgun', sv_PProtect.CanPhysgun)
+definePermissionCheck('CPPICanPickup', sv_PProtect.CanPickup)
+definePermissionCheck('CPPICanPunt', sv_PProtect.CanGravPunt)
+definePermissionCheck('CPPICanUse', sv_PProtect.CanUse)
+definePermissionCheck('CPPICanDamage', sv_PProtect.CanDamage)
+definePermissionCheck('CPPICanDrive', sv_PProtect.CanDrive)
+definePermissionCheck('CPPICanProperty', sv_PProtect.CanProperty)
 
 -- Can edit variable
 function ENTITY:CPPICanEditVariable(ply, key, val, edit)
