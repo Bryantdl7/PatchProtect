@@ -15,21 +15,34 @@ if SERVER then
   }
 
   -- Include server files
-  include('patchprotect/server/config.lua')
-  include('patchprotect/server/settings.lua')
-  include('patchprotect/server/antispam.lua')
-  include('patchprotect/server/propprotection.lua')
-  include('patchprotect/server/cleanup.lua')
-  include('patchprotect/server/buddy.lua')
+  local serverFiles = {
+    'patchprotect/server/config.lua',
+    'patchprotect/server/settings.lua',
+    'patchprotect/server/antispam.lua',
+    'patchprotect/server/propprotection.lua',
+    'patchprotect/server/cleanup.lua',
+    'patchprotect/server/buddy.lua'
+  }
+
+  for _, file in ipairs(serverFiles) do
+    include(file)
+  end
 
   -- Force clients to download all client files
   AddCSLuaFile()
-  AddCSLuaFile('patchprotect/client/csettings.lua')
-  AddCSLuaFile('patchprotect/client/fonts.lua')
-  AddCSLuaFile('patchprotect/client/hud.lua')
-  AddCSLuaFile('patchprotect/client/derma.lua')
-  AddCSLuaFile('patchprotect/client/panel.lua')
-  AddCSLuaFile('patchprotect/client/buddy.lua')
+
+  local clientFiles = {
+    'patchprotect/client/csettings.lua',
+    'patchprotect/client/fonts.lua',
+    'patchprotect/client/hud.lua',
+    'patchprotect/client/derma.lua',
+    'patchprotect/client/panel.lua',
+    'patchprotect/client/buddy.lua'
+  }
+
+  for _, file in ipairs(clientFiles) do
+    AddCSLuaFile(file)
+  end
 
   -- Force clients to download all shared files
   AddCSLuaFile('patchprotect/shared/patchprotect.lua')
@@ -45,10 +58,16 @@ else
   }
 
   -- Include client files
-  include('patchprotect/client/csettings.lua')
-  include('patchprotect/client/fonts.lua')
-  include('patchprotect/client/hud.lua')
-  include('patchprotect/client/derma.lua')
-  include('patchprotect/client/panel.lua')
-  include('patchprotect/client/buddy.lua')
+  local clientFiles = {
+    'patchprotect/client/csettings.lua',
+    'patchprotect/client/fonts.lua',
+    'patchprotect/client/hud.lua',
+    'patchprotect/client/derma.lua',
+    'patchprotect/client/panel.lua',
+    'patchprotect/client/buddy.lua'
+  }
+
+  for _, file in ipairs(clientFiles) do
+    include(file)
+  end
 end
