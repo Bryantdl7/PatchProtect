@@ -1,6 +1,6 @@
 -- GET OWNER
 function sh_PProtect.GetOwner(ent)
-  if !ent then return end
+  if not ent then return nil end
   return ent:GetNWEntity('pprotect_owner')
 end
 
