@@ -1,5 +1,3 @@
--- http://ulyssesmod.net/archive/CPPI_v1-3.pdf
-
 CPPI = CPPI or {}
 
 CPPI.CPPI_DEFER = 8080 -- PP (PathProtect)
@@ -26,20 +24,20 @@ end
 -- Get name of player from UID
 function CPPI:GetNameFromUID(uid)
   local ply = player.GetByUniqueID(uid)
-  if !ply then return end
+  if not ply then return end
   return ply:Nick()
 end
 
 -- Get friends from a player
 function PLAYER:CPPIGetFriends()
-  if CLIENT then return CPPI.CPPI_NOTIMPLEMENTED end -- TODO add this for client side (maybe only for local player)
-  return self.Buddies
+  if CLIENT then return CPPI.CPPI_NOTIMPLEMENTED end -- TODO: add this for client side (maybe only for local player)
+  return self.Buddies or {}
 end
 
 -- Get the owner of an entity
 function ENTITY:CPPIGetOwner()
   local ply = sh_PProtect.GetOwner(self)
-  if !ply or !ply:IsPlayer() then return nil, nil end
+  if not ply or not ply:IsPlayer() then return nil, nil end
   return ply, ply:UniqueID()
 end
 
@@ -47,6 +45,7 @@ if CLIENT then return end
 
 -- Set owner of an entity
 function ENTITY:CPPISetOwner(ply)
+  if not ply or not ply:IsPlayer() then return false end
   return sv_PProtect.SetOwner(self, ply)
 end
 
@@ -56,9 +55,8 @@ function ENTITY:CPPISetOwnerUID(uid)
 end
 
 -- Set entity to no world (true) or not even world (false)
--- It is not officially documented, but some addons seem to require this.
 function ENTITY:CPPISetOwnerless(bool)
-  if !IsValid(self) then return false end
+  if not IsValid(self) then return false end
 
   if bool then
     self:SetNWEntity('pprotect_owner', nil)
