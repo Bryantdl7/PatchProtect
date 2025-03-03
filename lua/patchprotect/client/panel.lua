@@ -70,7 +70,7 @@ function cl_PProtect.as_menu(p)
   p:addbtn('Save Settings', 'pprotect_save', {'Antispam'})
 end
 
--- Optimized code continues similarly for other menus...
+-- Other menus...
 
 -- Create Menus function
 local function CreateMenus()
@@ -88,3 +88,37 @@ local function CreateMenus()
   end
 end
 hook.Add('PopulateToolMenu', 'pprotect_make_menus', CreateMenus)
+
+-- Define UpdateMenus function in a scope where it is accessible
+local function showErrorMessage(p, msg)
+  p:ClearControls()
+  p:addlbl(msg)
+end
+
+local pans = {}
+function cl_PProtect.UpdateMenus(p_type, panel)
+  -- add Panel
+  if p_type and not pans[p_type] then
+    pans[p_type] = panel
+  end
+
+  -- load Panel
+  for t, p in pairs(pans) do
+    if t == 'as' or t == 'pp' then
+      if LocalPlayer():IsSuperAdmin() then
+        RunConsoleCommand('pprotect_request_new_settings', t)
+      else
+        showErrorMessage(pans[t], 'Sorry, you need to be a SuperAdmin to change\nthe settings.')
+      end
+    elseif t == 'cu' then
+      if LocalPlayer():IsSuperAdmin() or (LocalPlayer():IsAdmin() and cl_PProtect.Settings.Propprotection.adminscleanup) then
+        RunConsoleCommand('pprotect_request_new_counts')
+      else
+        showErrorMessage(pans[t], 'Sorry, you need to be a Admin/SuperAdmin to\nchange the settings.')
+      end
+    else
+      cl_PProtect[t .. '_menu'](pans[t])
+    end
+  end
+end
+hook.Add('SpawnMenuOpen', 'pprotect_update_menus', cl_PProtect.UpdateMenus)
